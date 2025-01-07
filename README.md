@@ -1,79 +1,67 @@
-README: Zybo Verilog Project
+# README: Zybo Verilog Project
 
-Overview
+## Overview
 
 This project implements a VGA controller for the Zybo board, utilizing a fractional clock divider to generate a 25.175 MHz clock from the 50 MHz base clock. The design includes horizontal (H) and vertical (V) counters to control synchronization and pixel positioning. It supports 16-bit color depth (5 bits for red, 5 bits for blue, and 6 bits for green).
 
-Key Features
+## Key Features
 
-Clock Divider
+1. **Clock Divider**
 
-A fractional clock divider reduces the Zybo's 50 MHz clock to the VGA standard of 25.175 MHz.
+   - A fractional clock divider reduces the Zybo's 50 MHz clock to the VGA standard of 25.175 MHz.
 
-H Counter and V Counter Modules
+2. **H Counter and V Counter Modules**
 
-Separate Verilog modules for horizontal and vertical counters.
+   - Separate Verilog modules for horizontal and vertical counters.
+   - H Sync is controlled when `h_count` reaches 96.
+   - V Sync is controlled when `v_count` reaches 2.
 
-H Sync is controlled when h_count reaches 96.
+3. **Color Control**
 
-V Sync is controlled when v_count reaches 2.
+   - The project supports 16-bit color encoding:
+     - Red: 5 bits
+     - Green: 6 bits
+     - Blue: 5 bits
 
-Color Control
+4. **Sync Control**
 
-The project supports 16-bit color encoding:
+   - H Sync and V Sync signals are set to low at specific counts to ensure proper synchronization with VGA standards.
 
-Red: 5 bits
+## File Structure
 
-Green: 6 bits
+- `clkdiv.v`: Implements the fractional clock divider.
+- `Hcnt.v`: Module for horizontal counting.
+- `Vcnt.v`: Module for vertical counting.
+- `TopMod.v`: Top-level module integrating H and V counters and generating H Sync, V Sync, and color signals.
+- `testbench.v`: Testbench for simulation and verification.
 
-Blue: 5 bits
+## How It Works
 
-Sync Control
+1. **Clock Divider**
 
-H Sync and V Sync signals are set to low at specific counts to ensure proper synchronization with VGA standards.
+   - The 50 MHz clock is divided down to 25.175 MHz using a fractional clock divider. This frequency is necessary for standard VGA timing.
 
-File Structure
+2. **H Counter**
 
-clkdiv.v: Implements the fractional clock divider.
+   - Counts pixels along the horizontal axis.
+   - Resets after reaching the end of a horizontal line.
+   - Controls H Sync by setting it low when the count reaches 96.
 
-Hcnt.v: Module for horizontal counting.
+3. **V Counter**
 
-Vcnt.v: Module for vertical counting.
+   - Counts lines along the vertical axis.
+   - Resets after reaching the total number of lines in a frame.
+   - Controls V Sync by setting it low when the count reaches 2.
 
-TopMod.v: Top-level module integrating H and V counters and generating H Sync, V Sync, and color signals.
+4. **Color Output**
 
-testbench.v: Testbench for simulation and verification.
+   - Based on pixel position and the H and V counters, the color signal is generated using 16 bits (R5, G6, B5).
 
-How It Works
-
-Clock Divider
-
-The 50 MHz clock is divided down to 25.175 MHz using a fractional clock divider. This frequency is necessary for standard VGA timing.
-
-H Counter
-
-Counts pixels along the horizontal axis.
-
-Resets after reaching the end of a horizontal line.
-
-Controls H Sync by setting it low when the count reaches 96.
-
-V Counter
-
-Counts lines along the vertical axis.
-
-Resets after reaching the total number of lines in a frame.
-
-Controls V Sync by setting it low when the count reaches 2.
-
-Color Output
-
-Based on pixel position and the H and V counters, the color signal is generated using 16 bits (R5, G6, B5).
-
-VGA Connection Diagram
+## VGA Connection Diagram
 
 Below is an ASCII diagram of the VGA connections:
 
+```
     +-----------------------------+       +-------------------+
     |          Pin 1 (Red)        |------>|     Red Signal    |
     +-----------------------------+       +-------------------+
@@ -97,3 +85,16 @@ Below is an ASCII diagram of the VGA connections:
     +-----------------------------+       +-------------------+
     |     Pin 5, 6, 7, 8 (GND)    |------>|      Ground       |
     +-----------------------------+       +-------------------+
+```
+
+## Simulation and Testing
+
+- Use the provided `testbench.v` to simulate the design.
+- Verify that the clock divider generates a stable 25.175 MHz signal.
+- Ensure H Sync and V Sync signals toggle at the correct counts.
+- Confirm that color signals are output correctly for different pixel positions.
+
+## Dependencies
+
+- Vivado Design Suite ( version: 2024.2)
+- Zybo board
